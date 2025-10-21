@@ -1,0 +1,63 @@
+---
+
+title: "Voice Workflow Terminologies"
+description: "Understand the key nodes and transitions used in voice workflows."
+--------------------------------------------------------------------------------
+
+# Voice Workflow Terminologies
+
+This page explains the **core components and terminologies** used when creating voice workflows in Pranthora. Understanding these concepts will help you design effective workflows for your agents.
+
+---
+
+## 🗨️ Conversational Node
+
+The **Conversational Node** is responsible for conducting the dialogue with the user.
+
+* Takes a **system prompt** to guide the conversation.
+* Can have **multiple transition conditions**.
+* If the node cannot handle a user query or identifies that another node is better suited, it will **automatically transition** to the appropriate node.
+
+---
+
+## 🛠️ Tool Node
+
+The **Tool Node** handles interactions that require performing specific actions via tools.
+
+* Gathers required **parameters from the user**.
+* Makes **tool calls**, e.g., booking an appointment.
+* Example parameters: `start time`, `patient name`, `duration of visit`.
+* ⚠️ **Note:** Each Tool Node can only handle **one tool at a time**.
+
+---
+
+## 📞 Transfer Node
+
+The **Transfer Node** is responsible for transferring the call to another number.
+
+* Requires the **phone number** in **E.164 format**.
+* Upon execution, the call is **transferred** to the specified number.
+
+---
+
+## ❌ End Call Node
+
+The **End Call Node** terminates the conversation.
+
+* When triggered, the call is **ended**.
+* Use this node at the conclusion of a workflow.
+
+---
+
+## 🔀 Conditional Edges / Transition Conditions
+
+Conditional edges define the **path between nodes** based on user intent.
+
+* Represent **intents or conditions** that determine the next node.
+* Connect multiple nodes together, forming a logical flow.
+* If the user's intent **matches a condition**, the workflow transitions to the connected node.
+
+> 💡 **Tip:** Plan your conditional edges carefully to ensure smooth conversation flow and correct intent handling.
+
+---
+

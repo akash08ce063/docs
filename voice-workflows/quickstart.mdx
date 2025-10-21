@@ -1,0 +1,56 @@
+---
+
+title: "Quickstart"
+description: "Create and configure voice workflows in Pranthora."
+-----------------------------------------------------------------
+
+# Voice Workflow Quickstart
+
+This guide will help you create your first **voice workflow** and configure it for agent interactions. 🎛️
+
+---
+
+## 🧩 Step 1: Create a Workflow
+
+1. Visit the [Workflow List](https://app.pranthora.firstpeak.ai/workflow-list).
+2. Click **Create Workflow** to initiate a new workflow.
+
+---
+
+## 📝 Step 2: Add Introduction Node
+
+* An **Introduction Node** will be auto-created.
+* Add a prompt to guide the initial conversation. For example:
+
+```text
+Acknowledge the user's voice agent use case, then ask for information about the user. Check if the user is available to talk.
+```
+
+* Click **Save** to confirm your node.
+
+---
+
+## 🔀 Step 3: Create Condition & Conversation Nodes
+
+1. Add a **Condition Edge** from the Introduction Node:
+
+   * Example condition: `User is free`
+2. Connect it to a **Conversation Node**:
+
+   * Example prompt: `If user is interested in attending workshop, proceed with relevant details.`
+3. Click **Save** to store the configuration.
+
+---
+
+## ⚙️ Step 4: Global Configuration
+
+On the **right side** of the workflow screen, you will find **Global Configuration** options:
+
+* **LLM Model** — select the model to be used throughout the workflow.
+* **Transcriber** — choose the speech-to-text provider.
+* **Text to Speech** — configure the voice for agent responses.
+
+> ⚠️ **Note:** These three configurations apply **globally across all nodes** in the workflow. They remain consistent for the entire conversation flow.
+
+---
+

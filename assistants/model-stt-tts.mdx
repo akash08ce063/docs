@@ -1,0 +1,48 @@
+---
+
+title: "Model, Transcriber & TTS"
+description: "Configure the model, transcriber, and text-to-speech settings for your assistant."
+------------------------------------------------------------------------------------------------
+
+
+## 🧠 Model
+
+In the **Model** section, you can configure how your assistant thinks and behaves.
+
+* From the **dropdown list**, choose any available **model** of your choice.
+* Adjust the **temperature** to control the variability in responses — lower values make the assistant more deterministic, while higher values make it more creative.
+* Specify a **welcome message** to greet users when a call starts.
+* Define a **greeting message** that the agent will speak at the start of the call exactly as written.
+
+> 💡 **Use Case:** Use the model configuration to tailor your assistant’s tone, creativity, and initial conversation flow.
+
+---
+
+## 🎙️ Transcriber
+
+The **Transcriber** listens to the caller’s voice and converts it into text for the model to understand.
+
+* Select a **transcriber** provider from the available options.
+* It transcribes spoken input into text for real-time understanding and response.
+
+### ⚙️ Streaming Option
+
+Each provider may have a **Streaming Enabled** toggle.
+Enabling streaming allows the transcription to happen in **real time**, leading to faster and more natural conversations.
+
+> ⚠️ **Important:** Most providers support **streaming mode**, which is preferred for smooth, low-latency conversations.
+> The only exception is **Faster-Whisper**, which operates in **non-streaming mode**. Be cautious when changing this setting if using Faster-Whisper.
+
+---
+
+## 🔊 Text to Speech (TTS)
+
+The **TTS** engine converts the assistant’s text responses into natural-sounding speech.
+
+* Choose from a wide variety of **human-like voices** across different providers.
+* You can configure the **voice style, gender, and accent** depending on the provider.
+* There is also a **streaming mode** option, allowing speech to begin playback as it’s generated — improving response time and interactivity.
+
+> 💡 **Recommendation:** Keep TTS in **streaming mode** for faster, more natural responses during real-time calls.
+
+---

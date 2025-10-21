@@ -17,56 +17,35 @@
             "group": "Get Started",
             "pages": [
               "introduction",
-              "quickstart",
-              "development"
+              "Speech pipeline overview"
             ]
           },
           {
             "group": "Assistants",
             "pages": [
-              "assistants/quickstart"
+              "assistants/quickstart",
+              "assistants/model-stt-tts",
+              "assistants/files",
+              "assistants/integrations",
+              "assistants/post-analysis",
+              "assistants/testing"
             ]
           },
           {
             "group": "Voice Workflows",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "voice-workflows/quickstart",
+              "voice-workflows/voice_workflow_terminologies",
+              "voice-workflows/testing"
             ]
           },
           {
             "group": "Integrations",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint Examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "integrations/overview",
+              "integrations/mcp_integrations",
+              "integrations/http_integrations",
+              "integrations/n8n_workflow_integrations"
             ]
           }
         ]
@@ -74,21 +53,7 @@
     ],
     "global": {
       "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
+        
       ]
     }
   },

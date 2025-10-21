@@ -1,0 +1,51 @@
+---
+title: HTTP Integrations
+---
+
+## Overview
+
+HTTP integrations allow your agents and workflows to connect directly with external APIs through a simple, unified configuration interface.  
+These integrations enable your voice agents to perform a wide range of actions — from fetching data to triggering automations — without manual coding.
+
+---
+
+## Connecting from Template Library
+
+You’ll see a list of popular provider templates under the **Integrations Library** section.  
+Simply click **Connect** on any provider you want to integrate.  
+This will open a new tab asking you to sign in or authorize the connection.  
+
+Once successfully connected, the integration will appear under your **Active Integrations** list and can be utilized across **Agents** or **Workflows**.
+
+
+---
+
+## Custom HTTP Integration
+
+If the provider you need is not available in the list, you can add a **Custom HTTP Integration**.  
+Click on **Add Custom HTTP**, and provide:
+
+- **Base URL** of the API  
+- **Authentication headers**  
+- **Timeout configuration**
+
+Once connected, the platform will automatically fetch the schema or endpoint definitions for easy use.  
+These integrations behave just like any built-in ones and can be attached to any agent or workflow.
+
+---
+
+## Output Schema Control
+
+Many external APIs return large payloads, often containing unnecessary fields.  
+To simplify the response and make it more usable, you can define a custom **Output Schema** — selecting only the fields you want to keep.
+
+For example:
+
+> When fetching events from a calendar API, you might keep only `event_name` and `start_time`, trimming out other unneeded details.
+
+This helps keep responses clean and relevant to your use case.
+
+---
+
+### Tip
+> HTTP Integrations can be found alongside **MCP Integrations** and **N8N Workflows** tabs in your integrations dashboard.

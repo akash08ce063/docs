@@ -1,0 +1,64 @@
+---
+
+title: "Post Analysis"
+description: "Analyze completed calls to generate summaries, structured data, or trigger integrations."
+-------------------------------------------------------------------------------------------------------
+
+# Post Analysis
+
+After a conversation between a **caller** and an **agent** concludes, you may want to perform additional analysis or automation.
+Pranthora provides flexible **post-analysis options** to help you extract insights, summarize content, or trigger follow-up actions automatically. 📊
+
+---
+
+## 🧩 Overview
+
+Post-analysis allows you to process call transcripts and metadata after a call ends.
+You can configure different modes depending on the kind of analysis or action you want to perform.
+
+Currently, there are **three post-analysis options** available:
+
+---
+
+## 📝 1. Call Summary
+
+The **Call Summary** section enables automatic summarization of the entire conversation.
+
+* Define a **prompt** that guides the system to generate a concise and informative summary.
+* You can customize this to focus on important details — such as key discussion points, outcomes, or next steps.
+
+> 💡 **Example:** “Summarize the conversation focusing on customer issues, agent responses, and resolution steps.”
+
+---
+
+## 📊 2. Structured Output
+
+In the **Structured Output** section, you can define a **prompt** to generate structured data from the conversation.
+
+* Useful for **reporting, analytics, or automation** workflows.
+* The generated structured data can be easily parsed or used to call other APIs.
+
+> 💡 **Example:** Extract key entities like `intent`, `sentiment`, and `next_action` in JSON format.
+
+---
+
+## 🔗 3. Integration Trigger
+
+The third option allows you to trigger an **integration** automatically after a call ends.
+
+* Use this to call an external HTTP API with post-analysis data.
+* Perfect for automating workflows like CRM updates, sending follow-up messages, or logging summaries in external systems.
+
+> ⚙️ This option leverages the **Integrations** feature to send structured call data to any connected service.
+
+---
+
+## 💡 Summary
+
+| Option                  | Purpose                          | Example Use Case                               |
+| ----------------------- | -------------------------------- | ---------------------------------------------- |
+| **Call Summary**        | Generate concise summary text    | Log summary notes or send email reports        |
+| **Structured Output**   | Extract structured insights      | Feed data into dashboards or APIs              |
+| **Integration Trigger** | Send results to external systems | Auto-update CRM or trigger follow-up workflows |
+
+---
