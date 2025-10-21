@@ -22,7 +22,24 @@
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Assistants",
+            "pages": [
+              "assistants/quickstart"
+            ]
+          },
+          {
+            "group": "Voice Workflows",
+            "pages": [
+              "essentials/markdown",
+              "essentials/code",
+              "essentials/images",
+              "essentials/settings",
+              "essentials/navigation",
+              "essentials/reusable-snippets"
+            ]
+          },
+          {
+            "group": "Integrations",
             "pages": [
               "essentials/markdown",
               "essentials/code",
