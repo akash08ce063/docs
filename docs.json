@@ -17,7 +17,7 @@
             "group": "Get Started",
             "pages": [
               "introduction",
-              "Speech pipeline overview"
+              "pipeline-overview"
             ]
           },
           {
@@ -58,8 +58,8 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/pranthora_docs_image.png",
+    "dark": "/logo/pranthora_docs_image.png"
   },
   "navbar": {
     "links": [

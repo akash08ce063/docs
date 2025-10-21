@@ -1,0 +1,104 @@
+---
+title: Pipelines Overview
+---
+
+## Overview
+
+In Pranthora, an agent interaction flows through a carefully designed **pipeline** that handles both **speech-based** and **text-based** conversations with high accuracy and responsiveness.
+
+There are two primary types of pipelines:
+
+- 🎙️ **Speech Pipeline** – Used for real-time voice conversations.  
+- 💬 **Text Pipeline** – Used for chat-based or text-only interactions.
+
+---
+
+## 🎙️ Speech Pipeline
+
+The **Speech Pipeline** powers natural and responsive conversations between users and agents.  
+It processes the entire flow from a user’s voice input to an agent’s spoken response, following this sequence:
+
+### 1. User Audio Input
+User audio can originate from:
+- **Twilio** (for phone calls)  
+- **Web** (for browser-based calls)
+
+The incoming audio is **resampled** to a consistent format and **noise cancellation** is applied to ensure clarity before further processing.
+
+---
+
+### 2. Voice Activity Detection (VAD)
+The cleaned audio is analyzed through the **Voice Activity Detection (VAD)** stage.  
+This stage identifies when the user starts and stops speaking — effectively detecting **turn boundaries** using a combination of:
+- **Acoustic cues (voice energy, silence)**  
+- **Semantic understanding (end-of-sentence meaning)**  
+
+This ensures that the system knows precisely **when to respond** or **when to continue listening**.
+
+---
+
+### 3. Transcription
+Once user speech is detected, it is sent to the **transcription model** in **streaming mode**.  
+- The model generates **partial transcripts** in near real-time.  
+- These transcripts are continuously updated and refined as the user speaks.  
+- This enables the agent to start reasoning and responding without waiting for the user to finish completely.
+
+---
+
+### 4. Agent / Assistant Processing
+The transcribed text is then passed to the **Agent (LLM/Assistant)**, which:
+- Understands user intent.  
+- Generates a contextual and relevant response.  
+- Optionally performs **external tool or integration calls** (e.g., MCP, HTTP, or N8N workflows).  
+
+During this step, the system keeps listening for **user interruptions** — if the user begins speaking again, the agent’s response is **interrupted and cleared**, allowing the system to immediately process the new input.
+
+---
+
+### 5. Text-to-Speech (TTS)
+The agent’s text output is sent to the **Text-to-Speech (TTS)** module, which:
+- Converts the text into natural-sounding audio.  
+- Supports **streaming synthesis**, so the user hears the response with minimal delay.  
+
+The result is a fluid, real-time, back-and-forth voice experience.
+
+---
+
+### 6. Assistant Audio Output
+Finally, the generated speech is **streamed back to the user**, either through:
+- The browser audio interface, or  
+- A Twilio-powered phone call.  
+
+This completes one full **speech interaction loop**, from user voice → agent reasoning → agent voice.
+
+---
+
+## 💬 Text Pipeline
+
+The **Text Pipeline** is a simplified version of the speech pipeline — perfect for chat testing or text-based interfaces.
+
+1. **User Text Input** – The user types a message directly.  
+2. **Agent Processing** – The text is passed to the same LLM/assistant logic used in the speech pipeline.  
+3. **External Calls** – Integrations and tool executions occur as needed.  
+4. **Text Output** – The agent’s response is returned directly as text (no TTS step).
+
+This pipeline mirrors the logic of the speech pipeline but excludes all voice-related components (audio input, VAD, transcription, and TTS).
+
+---
+
+## Summary
+
+| Stage | Speech Pipeline | Text Pipeline |
+|--------|------------------|---------------|
+| Input | User voice (Twilio/Web) | Text message |
+| Processing | VAD + Transcription + Agent + TTS | Agent only |
+| Output | Agent voice (streamed) | Text reply |
+| Interruption Handling | Dynamic speech interruption detection | Not applicable |
+
+---
+
+### ⚙️ Key Takeaways
+- Both pipelines share the same **Agent intelligence and integration logic**.  
+- Speech pipeline adds **real-time streaming**, **turn detection**, and **TTS playback**.  
+- User interruptions are handled gracefully, ensuring smooth and natural interaction flow.  
+- Ideal for both **voice-first** and **text-first** conversational experiences.
