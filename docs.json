@@ -1,84 +1,83 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Pranthora Documentation",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
-  },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "pipeline-overview"
-            ]
-          },
-          {
-            "group": "Assistants",
-            "pages": [
-              "assistants/quickstart",
-              "assistants/model-stt-tts",
-              "assistants/files",
-              "assistants/integrations",
-              "assistants/post-analysis",
-              "assistants/testing"
-            ]
-          },
-          {
-            "group": "Voice Workflows",
-            "pages": [
-              "voice-workflows/quickstart",
-              "voice-workflows/voice_workflow_terminologies",
-              "voice-workflows/testing"
-            ]
-          },
-          {
-            "group": "Integrations",
-            "pages": [
-              "integrations/overview",
-              "integrations/mcp_integrations",
-              "integrations/http_integrations",
-              "integrations/n8n_workflow_integrations"
-            ]
-          }
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/pranthora_docs_image.png",
-    "dark": "/logo/pranthora_docs_image.png"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
+	"$schema": "https://mintlify.com/docs.json",
+	"theme": "mint",
+	"name": "Pranthora Documentation",
+	"colors": {
+		"primary": "#16A34A",
+		"light": "#07C983",
+		"dark": "#15803D"
+	},
+	"favicon": "/favicon.svg",
+	"navigation": {
+		"tabs": [
+			{
+				"tab": "Guides",
+				"groups": [
+					{
+						"group": "Get Started",
+						"pages": ["introduction", "pipeline-overview"]
+					},
+					{
+						"group": "Assistants",
+						"pages": [
+							"assistants/quickstart",
+							"assistants/model-stt-tts",
+							"assistants/files",
+							"assistants/integrations",
+							"assistants/post-analysis",
+							"assistants/testing"
+						]
+					},
+					{
+						"group": "Voice Workflows",
+						"pages": [
+							"voice-workflows/quickstart",
+							"voice-workflows/voice_workflow_terminologies",
+							"voice-workflows/testing"
+						]
+					},
+					{
+						"group": "Integrations",
+						"pages": [
+							"integrations/overview",
+							"integrations/mcp_integrations",
+							"integrations/http_integrations",
+							"integrations/n8n_workflow_integrations"
+						]
+					},
+					{
+						"group": "Text Agents",
+						"pages": ["text-agents/whatsapp-agents"]
+					}
+				]
+			}
+		],
+		"global": {
+			"anchors": []
+		}
+	},
+	"logo": {
+		"light": "/logo/pranthora_docs_image.png",
+		"dark": "/logo/pranthora_docs_image.png"
+	},
+	"navbar": {
+		"links": [
+			{
+				"label": "Support",
+				"href": "mailto:hi@mintlify.com"
+			}
+		],
+		"primary": {
+			"type": "button",
+			"label": "Dashboard",
+			"href": "https://dashboard.mintlify.com"
+		}
+	},
+	"footer": {
+		"socials": {
+			"x": "https://x.com/mintlify",
+			"github": "https://github.com/mintlify",
+			"linkedin": "https://linkedin.com/company/mintlify"
+		}
+	}
 }
