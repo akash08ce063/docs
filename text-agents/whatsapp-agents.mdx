@@ -1,0 +1,117 @@
+---
+title: 'WhatsApp Agents'
+description: 'Build and deploy WhatsApp messaging agents to engage with customers on WhatsApp.'
+---
+
+# WhatsApp Agents Quickstart
+
+Build your first WhatsApp agent and start messaging your customers through WhatsApp 🚀
+
+You will:
+
+-   Set up your WhatsApp Business credentials
+-   Connect your WhatsApp number to Pranthora
+-   Configure your webhook
+-   Add intelligence to power your agent
+
+---
+
+## 🧩 Prerequisites
+
+-   A Meta developer account
+-   Access to [Meta for Developers](https://developers.facebook.com/)
+-   A WhatsApp Business number (test number works fine)
+
+> 💡 Tip: If you’re brand new to the WhatsApp Cloud API, keep the Meta docs open in a separate tab for quick reference.
+
+---
+
+## 1. Get Your WhatsApp Credentials
+
+To get started, you need these three values from Meta:
+
+-   Phone Number ID
+-   Access Token
+-   WhatsApp Business Account ID
+
+If you haven't set up WhatsApp Business yet, follow Meta’s setup to create an app and obtain these credentials.
+
+> 📚 Reference: [Official WhatsApp Cloud API – Get Started](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)
+
+---
+
+## 2. Integrate Your WhatsApp Number with Pranthora
+
+Follow these steps to connect your number:
+
+1. **Log in to Pranthora**
+
+    - Go to [https://app.pranthora.firstpeak.ai](https://app.pranthora.firstpeak.ai)
+    - Sign in with your credentials
+
+2. **Open WhatsApp in the sidebar**
+
+    - Click on **WhatsApp** in the left navigation
+
+3. **Start the integration**
+
+    - Click **Integrate WhatsApp Number**
+
+4. **Fill in the integration form**
+
+    ![Integration Form](/images/whatsapp-integration-form.png)
+
+    - Use your credentials from Meta
+    - Quick reference of fields:
+        - **Phone Number**: Your WhatsApp Business phone (pick correct country code)
+        - **Phone Number ID**: From Meta
+        - **Business Account ID**: From Meta
+        - **Auth Token**: Access token from [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
+
+        ![WhatsApp Access Token](/images/whatsapp-access-token.png)
+
+        - **Label**: A friendly name (e.g., "Customer Support Bot")
+        - **Business Name**: Your business name
+        - **Verify Token**: Any string; you will reuse it in the webhook step
+
+
+5. **Create the integration**
+
+    - Click **Create** to finish
+
+> 🔐 Security tip: Store your access token securely. Rotate it regularly and avoid sharing it in screenshots.
+
+---
+
+## 3. Configure Your WhatsApp Webhook
+
+1. Go to [https://developers.facebook.com/apps](https://developers.facebook.com/apps) and select your app
+2. In the left sidebar, open **Use cases** → click **Customize** for the WhatsApp use case
+
+    ![Meta Developer Platform](/images/whatsapp-usecase-page.png)
+
+3. Under Configuration, open **Webhook Configuration**
+
+    ![Webhook Configuration](/images/whatsapp-webhook-configuration.png)
+
+4. Set the following values:
+
+    - **Callback URL**: https://api-pranthora.firstpeak.ai/api/text/whatsapp/webhook
+    - **Verify Token**: Same value you used during Pranthora integration
+
+5. Click **Verify and Save**
+6. Enable the `messages` field in Webhook fields
+
+    > ⚠️ **Important:** This is required for your agent to receive messages.
+
+    ![Webhook Field](/images/whatsapp-webhook-field.png)
+
+7. Confirm that webhook status updates inside [Pranthora](https://app.pranthora.firstpeak.ai/whatsapp)
+
+## ✅ You’re all set!
+
+Your WhatsApp agent is now integrated and ready to use. Send a message to your connected number to test end-to-end.
+
+> 🧪 Tip: If a message doesn’t arrive, re-check the webhook verify token, ensure the `messages` field is toggled, and confirm that your access token hasn’t expired.
+
+---
