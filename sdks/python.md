@@ -40,18 +40,37 @@ client = Pranthora(
 
 ## Real-time Voice
 
-Start a voice session directly from your Python application, similar to the Vapi SDK. This connects your local microphone and speaker to the agent.
+Start a voice session directly from your Python application. This connects your local microphone and speaker to the agent for real-time conversation.
+
+### Prerequisites
+
+Install required audio libraries:
+
+```bash
+pip install pyaudio websockets
+```
+
+**Note**: On macOS, you may need to install PortAudio first:
+```bash
+brew install portaudio
+```
 
 ### Start a Call
 
 ```python
+from pranthora import Pranthora
+
+# Initialize client
+client = Pranthora(api_key="YOUR_API_KEY", base_url="https://api.pranthora.ai")
+
 # Start a call with an existing agent
 client.start(agent_id="YOUR_AGENT_ID")
 
-# Or start with overrides
+# Or start with assistant overrides (variables)
 assistant_overrides = {
     "variableValues": {
-        "name": "John"
+        "name": "John",
+        "company": "Acme Corp"
     }
 }
 client.start(agent_id="YOUR_AGENT_ID", assistant_overrides=assistant_overrides)
@@ -60,7 +79,94 @@ client.start(agent_id="YOUR_AGENT_ID", assistant_overrides=assistant_overrides)
 ### Stop a Call
 
 ```python
+# Stop the current voice session
 client.stop()
+```
+
+### Complete Example with Event Handlers
+
+```python
+from pranthora import Pranthora
+import time
+
+client = Pranthora(api_key="YOUR_API_KEY", base_url="https://api.pranthora.ai")
+
+# Set up event callbacks
+def on_connected():
+    print("✅ Connected to voice session")
+
+def on_disconnected():
+    print("❌ Disconnected from voice session")
+
+def on_first_response(message: str):
+    print(f"✨ First response: {message}")
+
+def on_transcript(role: str, text: str):
+    print(f"📝 [{role}]: {text}")
+
+def on_interruption():
+    print("⚡ Interruption detected")
+
+def on_agent_speaking_start():
+    print("🤖 Agent started speaking")
+
+def on_agent_speaking_stop():
+    print("🤖 Agent stopped speaking")
+
+def on_error(error: str):
+    print(f"❌ Error: {error}")
+
+# Attach callbacks
+voice_client = client._voice_client
+voice_client.on_connected = on_connected
+voice_client.on_disconnected = on_disconnected
+voice_client.on_first_response = on_first_response
+voice_client.on_transcript = on_transcript
+voice_client.on_interruption = on_interruption
+voice_client.on_agent_speaking_start = on_agent_speaking_start
+voice_client.on_agent_speaking_stop = on_agent_speaking_stop
+voice_client.on_error = on_error
+
+# Start the call
+client.start(agent_id="YOUR_AGENT_ID")
+
+# Keep the session running
+try:
+    while voice_client.is_running:
+        time.sleep(1)
+        # You can check statistics
+        stats = voice_client.get_stats()
+        print(f"Messages received: {stats['messages_received']}")
+except KeyboardInterrupt:
+    print("\nStopping call...")
+    client.stop()
+```
+
+### Audio Format
+
+The SDK sends audio as **raw PCM bytes** (16-bit, 24kHz, mono) directly to the WebSocket. The backend processes these bytes for voice activity detection, transcription, and response generation.
+
+### Call Statistics
+
+Get real-time statistics about the call:
+
+```python
+stats = client._voice_client.get_stats()
+print(f"Duration: {stats.get('duration_seconds', 0)}s")
+print(f"Messages received: {stats['messages_received']}")
+print(f"Audio sent: {stats['audio_bytes_sent']} bytes")
+print(f"Audio received: {stats['audio_bytes_received']} bytes")
+print(f"First response received: {stats['first_response_received']}")
+```
+
+### Message Logs
+
+Access detailed logs of the call:
+
+```python
+logs = client._voice_client.get_logs()
+for log in logs:
+    print(f"[{log['timestamp']}] {log['type']}: {log['message']}")
 ```
 
 ## Agents
@@ -78,10 +184,83 @@ agent = client.agents.create(
     model="gpt-4.1", 
     system_prompt="You are a friendly sales representative.",
     voice="thalia",
-    transcriber="deepgram_nova_3"
+    transcriber="deepgram_nova_3",
+    first_response_message="Hello! How can I help you today?"
 )
 
-print(f"Created agent: {agent['id']}")
+print(f"Created agent: {agent['agent']['id']}")
+```
+
+### List All Agents
+
+Get all agents for the current user.
+
+```python
+# Get all agents
+agents = client.agents.list()
+
+for agent in agents:
+    agent_data = agent.get('agent', {})
+    print(f"Name: {agent_data.get('name')}, ID: {agent_data.get('id')}")
+    print(f"Status: {'Active' if agent_data.get('is_active') else 'Inactive'}")
+```
+
+### Get Agent by ID
+
+Retrieve a specific agent with all its configurations.
+
+```python
+# Get a specific agent by ID
+agent = client.agents.get(agent_id="YOUR_AGENT_ID")
+
+print(f"Agent Name: {agent['agent']['name']}")
+print(f"Status: {'Active' if agent['agent']['is_active'] else 'Inactive'}")
+
+# Access configurations with friendly names
+if 'configurations' in agent:
+    configs = agent['configurations']
+    if 'model' in configs:
+        print(f"Model: {configs['model'].get('model_name', 'N/A')}")
+    if 'tts' in configs:
+        print(f"Voice: {configs['tts'].get('voice_name_friendly', 'N/A')}")
+    if 'transcriber' in configs:
+        print(f"Transcriber: {configs['transcriber'].get('transcriber_name', 'N/A')}")
+```
+
+### Update an Agent
+
+Update agent properties and configurations.
+
+```python
+# Update agent name and description
+updated_agent = client.agents.update(
+    agent_id="YOUR_AGENT_ID",
+    name="Updated Agent Name",
+    description="Updated description"
+)
+
+# Update with configuration changes
+updated_agent = client.agents.update(
+    agent_id="YOUR_AGENT_ID",
+    name="New Name",
+    voice="darla",
+    temperature=0.8,
+    system_prompt="You are a helpful customer support agent."
+)
+
+print(f"Updated agent: {updated_agent['agent']['name']}")
+```
+
+### Delete an Agent
+
+Delete an agent (force_delete=True by default).
+
+```python
+# Delete an agent
+client.agents.delete(agent_id="YOUR_AGENT_ID")
+
+# Or explicitly set force_delete
+client.agents.delete(agent_id="YOUR_AGENT_ID", force_delete=True)
 ```
 
 ### Supported Models & Providers
