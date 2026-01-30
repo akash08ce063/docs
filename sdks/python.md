@@ -33,140 +33,79 @@ from pranthora import Pranthora
 
 client = Pranthora(
     api_key="YOUR_API_KEY",
-    # Optional: Override base URL for development
-    # base_url="http://localhost:5050" 
+    # Optional: Override base URL (must include /api/v1). Default: https://api.pranthora.com/api/v1
+    # base_url="http://localhost:5050/api/v1"
 )
 ```
 
-## Real-time Voice
+## Real-time Voice Calls (Outbound)
 
-Start a voice session directly from your Python application. This connects your local microphone and speaker to the agent for real-time conversation.
+Start an **outbound phone call** from your application. The backend uses your attached Twilio number to call the given phone number and connects the call to the specified agent. The person you call hears and talks to the agent over the phone.
 
 ### Prerequisites
 
-Install required audio libraries:
-
-```bash
-pip install pyaudio websockets
-```
-
-**Note**: On macOS, you may need to install PortAudio first:
-```bash
-brew install portaudio
-```
+- A Pranthora account with an API key.
+- At least one Twilio phone number configured for your user (used as the caller ID for outbound calls).
 
 ### Start a Call
 
 ```python
 from pranthora import Pranthora
 
-# Initialize client
-client = Pranthora(api_key="YOUR_API_KEY", base_url="https://api.pranthora.ai")
+# Initialize client (use base_url for local dev, e.g. "http://localhost:5050/api/v1")
+client = Pranthora(api_key="YOUR_API_KEY", base_url="https://api.pranthora.com/api/v1")
 
-# Start a call with an existing agent
-client.start(agent_id="YOUR_AGENT_ID")
+# Start an outbound call: call to_phone_number using the given agent (your Twilio number is used as caller ID)
+result = client.start(
+    agent_id="YOUR_AGENT_ID",
+    to_phone_number="+1234567890",
+)
+print(f"Call started: {result['call_sid']}, from: {result['from_phone_number']}")
+```
 
-# Or start with assistant overrides (variables)
+Optional **assistant overrides** (e.g. variables for the agent) — reserved for future use:
+
+```python
 assistant_overrides = {
     "variableValues": {
         "name": "John",
         "company": "Acme Corp"
     }
 }
-client.start(agent_id="YOUR_AGENT_ID", assistant_overrides=assistant_overrides)
+result = client.start(
+    agent_id="YOUR_AGENT_ID",
+    to_phone_number="+1234567890",
+    assistant_overrides=assistant_overrides,
+)
 ```
 
 ### Stop a Call
 
+Hang up an active call. If you omit `call_sid` and `from_phone_number`, the client uses the last call from `start()`.
+
 ```python
-# Stop the current voice session
+# Stop the last call you started
 client.stop()
+
+# Or stop a specific call (use values returned from start())
+client.stop(call_sid="CAxxxx...", from_phone_number="+19876543210")
 ```
 
-### Complete Example with Event Handlers
+### Minimal Example
 
 ```python
 from pranthora import Pranthora
-import time
 
-client = Pranthora(api_key="YOUR_API_KEY", base_url="https://api.pranthora.ai")
+client = Pranthora(api_key="YOUR_API_KEY", base_url="https://api.pranthora.com/api/v1")
 
-# Set up event callbacks
-def on_connected():
-    print("✅ Connected to voice session")
+result = client.start(
+    agent_id="YOUR_AGENT_ID",
+    to_phone_number="+1234567890",
+)
+print(f"Call SID: {result['call_sid']}")
 
-def on_disconnected():
-    print("❌ Disconnected from voice session")
-
-def on_first_response(message: str):
-    print(f"✨ First response: {message}")
-
-def on_transcript(role: str, text: str):
-    print(f"📝 [{role}]: {text}")
-
-def on_interruption():
-    print("⚡ Interruption detected")
-
-def on_agent_speaking_start():
-    print("🤖 Agent started speaking")
-
-def on_agent_speaking_stop():
-    print("🤖 Agent stopped speaking")
-
-def on_error(error: str):
-    print(f"❌ Error: {error}")
-
-# Attach callbacks
-voice_client = client._voice_client
-voice_client.on_connected = on_connected
-voice_client.on_disconnected = on_disconnected
-voice_client.on_first_response = on_first_response
-voice_client.on_transcript = on_transcript
-voice_client.on_interruption = on_interruption
-voice_client.on_agent_speaking_start = on_agent_speaking_start
-voice_client.on_agent_speaking_stop = on_agent_speaking_stop
-voice_client.on_error = on_error
-
-# Start the call
-client.start(agent_id="YOUR_AGENT_ID")
-
-# Keep the session running
-try:
-    while voice_client.is_running:
-        time.sleep(1)
-        # You can check statistics
-        stats = voice_client.get_stats()
-        print(f"Messages received: {stats['messages_received']}")
-except KeyboardInterrupt:
-    print("\nStopping call...")
-    client.stop()
-```
-
-### Audio Format
-
-The SDK sends audio as **raw PCM bytes** (16-bit, 24kHz, mono) directly to the WebSocket. The backend processes these bytes for voice activity detection, transcription, and response generation.
-
-### Call Statistics
-
-Get real-time statistics about the call:
-
-```python
-stats = client._voice_client.get_stats()
-print(f"Duration: {stats.get('duration_seconds', 0)}s")
-print(f"Messages received: {stats['messages_received']}")
-print(f"Audio sent: {stats['audio_bytes_sent']} bytes")
-print(f"Audio received: {stats['audio_bytes_received']} bytes")
-print(f"First response received: {stats['first_response_received']}")
-```
-
-### Message Logs
-
-Access detailed logs of the call:
-
-```python
-logs = client._voice_client.get_logs()
-for log in logs:
-    print(f"[{log['timestamp']}] {log['type']}: {log['message']}")
+# Later: hang up
+client.stop()
 ```
 
 ## Agents
@@ -271,20 +210,32 @@ The SDK supports a wide range of models and providers. You can use these friendl
   Browse the complete list of supported LLM models, voices, and transcribers with their friendly names.
 </Card>
 
-## Voice Calls (Telephony)
+## Voice Calls (Telephony) — Lower-level API
 
-Initiate and manage outbound telephone calls.
+You can also use the **calls** resource directly to create and stop calls. `client.start()` and `client.stop()` are convenience wrappers that use this under the hood.
 
-### Make an Outbound Call
-
-Trigger an outbound call to a phone number.
+### Create an Outbound Call
 
 ```python
+# With a specific agent (recommended for outbound)
 call = client.calls.create(
-    phone_number="+1234567890"
+    phone_number="+1234567890",
+    agent_id="YOUR_AGENT_ID",
 )
+print(f"Call initiated: {call['call_sid']}, from: {call['from_phone_number']}")
 
-print(f"Call initiated: {call.get('call_sid')}")
+# Without agent_id: uses the agent mapped to your Twilio number
+call = client.calls.create(phone_number="+1234567890")
+```
+
+### Stop (Hang Up) a Call
+
+```python
+# Requires call_sid and from_phone_number (from create() or start() response)
+client.calls.stop(
+    call_sid="CAxxxx...",
+    from_phone_number="+19876543210",
+)
 ```
 
 ## Webhooks
