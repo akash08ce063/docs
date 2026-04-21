@@ -1,0 +1,77 @@
+---
+title: "Batch Calling (Outbound)"
+---
+
+
+## 1. Create a new Batch
+
+Follow these steps to create batch 
+
+1. **Log in to Pranthora**
+
+    - Go to [https://app.pranthora.firstpeak.ai](https://app.pranthora.firstpeak.ai)
+    - Sign in with your credentials
+
+2. **Open Outbound in the sidebar**
+
+    - Click on **Outbound** in the left navigation
+
+3. **Create a New Batch**
+
+    - Click **Create Batch**
+
+4. **Fill in the form**
+
+    ![Batch Form](/images/create_batch.png)
+
+    - Quick reference of fields:
+        - **Batch Name**: Human-friendly name for the campaign (e.g., "Nov Support Followups")
+        - **Description**: Add a short summary to describe the purpose of this batch (e.g., "Follow-up calls for November demo requests")
+        - **Phone Number**: Choose the outbound phone number your calls will be made from. This should be a verified number connected to your account
+        - **Agent / Workflow**: Choose either a specific Agent or a Workflow that will handle each call
+        - **Variable Names**: Enter any variable names that will be replaced inside the agent prompt (comma-separated). Examples: name, company_name, appointment_time
+        - **Batch Size**: Max number of contacts to run in this batch (you can set to full CSV size)
+
+---
+
+## 2. Prepare your CSV 
+
+    CSV must contain:
+          - A column for to_phonenumber
+          - Optional columns for variables referenced in the batch (must match variable names entered earlier).
+          - **Phone number formatting**: Use E.164 format
+    
+
+    Tips:
+        - Include a header row.
+        - Trim spaces and remove hidden characters.
+        - Validate phone numbers before upload to reduce errors.
+
+---
+
+## 3. Upload CSV to the created Batch
+
+    1. From Batch Calling list click the batch row you created to open the Batch Details page.
+    2. click **Upload** and select your CSV file.
+    3. **(Optional)** Click **Template** to download a sample CSV. Use the template as your format reference.
+    4. Map CSV columns to fields shown by UI (choose the to_phonenumber column and any variable columns).
+    5. After Selecting a file ,  Preview a few rows (UI shows sample rows and warns about invalid numbers).
+    6. Uploaded recipients will appear in the Call Recipients table on the Batch Details page with Phone Number, Status, and Variables.
+
+     ![Upload CSV](/images/upload_csv.png)
+
+---
+
+## 4. Launch Campaign
+
+Once upload is processed and you confirm the contact count:
+    1. Click Launch Campaign
+
+What happens: Pranthora will schedule and begin calling contacts using the selected Agent/Workflow. Each call instantiates the agent and uses the variables from the CSV for personalization.
+
+---
+
+    💡 **Tip & Validations:**
+        - Use E.164 phone formatting when possible (`+<countrycode><number>`).
+        - If rows are rejected, download the errors or fix the CSV and re-upload only failed rows.
+        - Test with a small batch_size first (e.g., 10) to verify agent behavior.
