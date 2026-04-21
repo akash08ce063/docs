@@ -1,0 +1,348 @@
+# External Infrastructure Integration Guide
+
+**Pranthora Voice Platform — Client Integration Reference**
+
+---
+
+## Overview
+
+Pranthora supports connecting your own telephony or audio infrastructure directly to the platform. Once connected, Pranthora handles the full AI pipeline — speech recognition, LLM inference, and text-to-speech — and streams responses back to your infrastructure in real time.
+
+Two integration modes are supported:
+
+| Mode | Best For |
+|---|---|
+| **Pure WebSocket** | SIP/media servers, custom telephony infrastructure, real-time audio bridges |
+| **HTTP + WebSocket** | Systems that need a session handshake before opening a persistent stream |
+
+---
+
+## Authentication
+
+All external connections authenticate using an **API Key** generated from the Pranthora platform.
+
+> Generate your API key from **Pranthora Dashboard → Settings → API Keys**
+
+### How to pass the API Key
+
+For both integration modes, set the API key in the WebSocket connection header:
+
+```
+x-api-key: <your-api-key>
+```
+
+Pranthora extracts and validates the key on every new WebSocket connection. Connections without a valid key will be rejected with close code `4001`.
+
+---
+
+## Integration Mode 1 — Pure WebSocket
+
+In this mode, your infrastructure connects directly to the Pranthora WebSocket endpoint, streams audio, and receives AI-generated speech in return. No prior HTTP handshake is needed.
+
+### Connection
+
+```
+wss://<pranthora-host>/api/call/web-media-stream?agent_id=<agent_id>
+```
+
+Or, if using a workflow instead of a single agent:
+
+```
+wss://<pranthora-host>/api/call/web-media-stream?workflow_id=<workflow_id>
+```
+
+**Required query parameters** — one of:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `agent_id` | string | ID of the agent to connect to |
+| `workflow_id` | string | ID of the workflow to connect to |
+
+**Required headers:**
+
+| Header | Value |
+|---|---|
+| `x-api-key` | Your API key |
+
+### Connection Lifecycle
+
+```
+Your Infra                          Pranthora
+    |                                   |
+    |------- WebSocket Upgrade -------->|  (includes x-api-key header)
+    |<------ 101 Switching Protocols ---|
+    |                                   |
+    |<-- {"event_type": "start_media_streaming"} (text frame)
+    |                                   |  ← signal: begin sending audio
+    |------- raw PCM audio bytes ------>|  (binary frames, continuous)
+    |------- raw PCM audio bytes ------>|
+    |------- raw PCM audio bytes ------>|
+    |                                   |
+    |<------ raw PCM audio bytes -------|  (TTS response, binary frames)
+    |<------ raw PCM audio bytes -------|
+    |                                   |
+    |<---------- "stop" (text frame) ---|  (interruption signal)
+    |                                   |  ← your infra must stop playback
+    |------- raw PCM audio bytes ------>|  (user continues speaking)
+    |                                   |
+    |<------ raw PCM audio bytes -------|  (new TTS response)
+    |                                   |
+    |------- WebSocket Close ---------->|  (end of call)
+```
+
+### Sending Audio (Client → Pranthora)
+
+- Wait for the `{"event_type": "start_media_streaming"}` text frame before sending audio.
+- Send audio as **raw binary frames** (no envelope, no JSON wrapper).
+- Stream continuously in small chunks — do not buffer or batch large chunks.
+
+**Expected audio format:**
+
+| Property | Value |
+|---|---|
+| Encoding | PCM (Linear 16-bit, little-endian) |
+| Sample Rate | 16,000 Hz |
+| Channels | 1 (mono) |
+| Frame Type | WebSocket binary frame |
+
+### Receiving from Pranthora (Pranthora → Client)
+
+Pranthora sends two types of frames back to your connection:
+
+#### TTS Audio — Binary Frame
+
+Raw PCM audio bytes in the same format as the inbound audio (16kHz, mono, PCM). Play this directly to the end user.
+
+#### Interruption Signal — Text Frame
+
+```
+stop
+```
+
+When you receive this text frame, **immediately halt playback** of any TTS audio you are currently streaming to the user. The user has spoken and Pranthora is generating a new response. Discard any buffered TTS audio.
+
+### Session Timeout
+
+Pranthora enforces a configurable session timeout on idle connections. When the timeout is reached, the WebSocket will be closed with code `1000` and reason `"Session timeout reached"`. Your infrastructure should reconnect if the call is still active.
+
+---
+
+## Integration Mode 2 — HTTP Handshake + WebSocket
+
+In this mode, your infrastructure sends a single HTTP request to Pranthora with your API key. Pranthora authenticates the request and returns a WebSocket URL. Your infrastructure then connects to that URL and begins streaming audio.
+
+This is useful for systems where a request/response handshake is required before opening a persistent connection — for example, orchestration layers that need to know the target URL before instructing a media server to connect.
+
+### Step 1 — Request a WebSocket URL
+
+```http
+POST https://<pranthora-host>/api/call
+x-api-key: <your-api-key>
+Content-Type: application/json
+
+{
+  "agent_id": "<agent_id>"
+}
+```
+
+Or using a workflow:
+
+```http
+POST https://<pranthora-host>/api/call
+x-api-key: <your-api-key>
+Content-Type: application/json
+
+{
+  "workflow_id": "<workflow_id>"
+}
+```
+
+**Response:**
+
+```json
+{
+  "websocket_url": "wss://<pranthora-host>/api/call/media-stream/agents/<agent_id>"
+}
+```
+
+Pranthora validates the API key and, if authenticated, returns the WebSocket URL your infrastructure should connect to.
+
+### Step 2 — Connect via WebSocket
+
+Connect to the `websocket_url` returned in Step 1 using the **Telephony Protocol** (JSON-framed messages). The full message protocol is described in the [Telephony Protocol](#telephony-protocol-twilio-compatible) section below.
+
+```
+wss://<pranthora-host>/api/call/media-stream/agents/<agent_id>
+```
+
+---
+
+## Telephony Protocol (Twilio-Compatible)
+
+If your infrastructure is a telephony provider or SBC that supports the **Twilio Media Streams** protocol, you can connect to the dedicated telephony WebSocket endpoints. This protocol uses JSON-framed messages instead of raw binary frames, and operates at 8kHz with mulaw encoding — matching traditional telephony.
+
+### Connection
+
+Per-agent:
+```
+wss://<pranthora-host>/api/call/media-stream/agents/<agent_id>
+```
+
+Per-workflow:
+```
+wss://<pranthora-host>/api/call/media-stream/workflows/<workflow_id>
+```
+
+> These endpoints follow the Twilio Media Streams WebSocket protocol. Your infrastructure must send and receive Twilio-format JSON events.
+
+### Message Protocol
+
+All messages are UTF-8 encoded JSON text frames.
+
+#### Client → Pranthora
+
+**Start Event** — sent once when the stream begins:
+
+```json
+{
+  "event": "start",
+  "start": {
+    "streamSid": "<unique-stream-id>",
+    "callSid": "<call-identifier>"
+  }
+}
+```
+
+**Media Event** — sent continuously with audio chunks:
+
+```json
+{
+  "event": "media",
+  "media": {
+    "payload": "<base64-encoded-audio>"
+  }
+}
+```
+
+**Stop Event** — sent when the call ends:
+
+```json
+{
+  "event": "stop"
+}
+```
+
+#### Pranthora → Client
+
+**TTS Audio:**
+
+```json
+{
+  "event": "media",
+  "streamSid": "<stream-id>",
+  "media": {
+    "payload": "<base64-encoded-tts-audio>"
+  }
+}
+```
+
+**Interruption / Clear Buffer:**
+
+```json
+{
+  "event": "clear",
+  "streamSid": "<stream-id>"
+}
+```
+
+Upon receiving `clear`, stop playback immediately and flush any buffered TTS audio.
+
+**TTS Completion Mark:**
+
+```json
+{
+  "event": "mark",
+  "streamSid": "<stream-id>",
+  "mark": {
+    "name": "tts_completed"
+  }
+}
+```
+
+Signals that the current TTS utterance has finished sending. Useful for synchronizing playback end detection on your side.
+
+---
+
+## Supported Audio Formats
+
+| Format | Sample Rate | Encoding | Frame Type | Integration Mode |
+|---|---|---|---|---|
+| PCM Linear 16-bit | 16,000 Hz | Raw PCM (little-endian) | Binary | Pure WebSocket / HTTP+WS |
+| mulaw (µ-law) | 8,000 Hz | Base64 (JSON-wrapped) | Text (JSON) | Telephony Protocol |
+| alaw (A-law) | 8,000 Hz | Base64 (JSON-wrapped) | Text (JSON) | Telephony Protocol |
+
+> **Note:** Resampling is handled internally. If you send 8kHz mulaw audio, Pranthora upsamples it to 16kHz for model processing. TTS output is likewise encoded and downsampled back to match your input format.
+
+---
+
+## Interruption Handling
+
+Pranthora's voice pipeline includes real-time interruption detection. When the system detects that the user is speaking while the agent is responding:
+
+1. Any in-progress TTS generation is cancelled.
+2. Pranthora sends an interruption signal to your connection:
+   - **Pure WebSocket:** text frame `"stop"`
+   - **Telephony Protocol:** `{"event": "clear", "streamSid": "..."}`
+3. Your infrastructure must stop playback and discard any buffered audio.
+4. Pranthora processes the new user speech and sends a fresh response.
+
+Interruptions are validated intelligently — filler sounds like "um", "uh", or "hmm" do not trigger an interruption, but clear speech (`"wait"`, `"stop"`, `"actually"`, direct questions, etc.) will.
+
+---
+
+## WebSocket Close Codes
+
+| Code | Reason | Action |
+|---|---|---|
+| `1000` | Normal closure / Session timeout / Call terminated by agent | Close gracefully |
+| `4001` | Invalid origin or unauthorized | Check `x-api-key` header |
+| `4002` | Missing `agent_id` or `workflow_id` | Add required query parameter |
+| `4003` | Agent/workflow not found | Verify the ID is correct |
+| `1008` | Missing required parameter | Check connection parameters |
+| `1011` | Session not found | Re-authenticate and reconnect |
+
+---
+
+## Quick Reference
+
+### Pure WebSocket
+
+```
+wss://<host>/api/call/web-media-stream?agent_id=<id>
+Header: x-api-key: <key>
+
+Wait for: {"event_type": "start_media_streaming"}
+Send:     raw binary PCM frames (16kHz, mono)
+Receive:  raw binary PCM frames (TTS) | text "stop" (interruption)
+```
+
+### HTTP + WebSocket
+
+```
+POST https://<host>/api/call
+Header: x-api-key: <key>
+Body:   {"agent_id": "<id>"}
+→ {"websocket_url": "wss://<host>/api/call/media-stream/agents/<id>"}
+
+Connect to returned websocket_url → use Telephony Protocol (JSON events)
+```
+
+### Telephony Protocol
+
+```
+wss://<host>/api/call/media-stream/agents/<agent_id>
+
+Send:     JSON events — start / media / stop
+Receive:  JSON events — media (TTS) / clear (interrupt) / mark (TTS done)
+Audio:    8kHz mulaw or alaw, base64-encoded inside JSON
+```

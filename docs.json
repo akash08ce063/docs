@@ -45,7 +45,8 @@
               "integrations/overview",
               "integrations/mcp_integrations",
               "integrations/http_integrations",
-              "integrations/n8n_workflow_integrations"
+              "integrations/n8n_workflow_integrations",
+              "integrations/external_infrastructure_integration_guide"
             ]
           }
         ]
