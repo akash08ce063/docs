@@ -15,7 +15,10 @@
 				"groups": [
 					{
 						"group": "Get Started",
-						"pages": ["introduction", "pipeline-overview"]
+						"pages": [
+							"introduction",
+							"pipeline-overview"
+						]
 					},
 					{
 						"group": "Assistants",
@@ -48,11 +51,27 @@
 					},
 					{
 						"group": "Text Agents",
-						"pages": ["text-agents/whatsapp-agents"]
+						"pages": [
+							"text-agents/whatsapp-agents"
+						]
 					},
 					{
 						"group": "Outbound",
-						"pages": ["outbound/outbound"]
+						"pages": [
+							"outbound/outbound"
+						]
+					}
+				]
+			},
+			{
+				"tab": "SDKs",
+				"groups": [
+					{
+						"group": "Python",
+						"pages": [
+							"sdks/python",
+							"sdks/supported-models"
+						]
 					}
 				]
 			}
